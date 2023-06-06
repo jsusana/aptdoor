@@ -25,7 +25,7 @@ while True:
     net.setInput(blob)
     detections = net.forward()
     
-    for i in np.arange(0, detections.shape[2]):
+    for i in np.arange(0, detections.shape[2]):  
         confidence = detections[0, 0, i, 2]
         if confidence > 0.2:
             idx = int(detections[0, 0, i, 1])
@@ -36,14 +36,19 @@ while True:
             y = startY - 15 if startY - 15 > 15 else startY + 15
             cv2.putText(frame, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
             if (CLASSES[idx] == "person"):
+                print('A person has enter the room')
                 last = utils.get_last_alert_time()
+                print('Last notification sent [{0}]'.format(last))
                 if (last > 60):
                     phone = "+18094813189"
+                    print('Sending the alert to phone: {0}'.format(phone))
                     whatsapp_helper.SendAlertMessage(phone, "There is a person in your front door, here is the photo:")
                     path = 'data/imgs/frame' + datetime.now().strftime("%m%d%y%H%M%S") + '.jpg'
                     cv2.imwrite(path ,frame)
                     whatsapp_helper.SendAlertImage(phone, path)
                     utils.set_last_alert_time(datetime.now().strftime("%m/%d/%y %H:%M:%S"))
+                    print('Alert sent')
+                    time.sleep(15)
 
     
     cv2.imshow("Frame", frame)
@@ -52,6 +57,5 @@ while True:
         break
 
     fps.update()
-    time.sleep(1)
 
 fps.stop()
